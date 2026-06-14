@@ -1,6 +1,6 @@
 # AutoOps AI Architecture
 
-![AutoOps Architecture](../architecture.png)
+![AutoOps Architecture](../architecture_diagram.png)
 
 ## How it integrates with your project
 
