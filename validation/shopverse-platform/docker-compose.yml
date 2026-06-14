@@ -1,0 +1,119 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: shopverse
+      POSTGRES_PASSWORD: shopverse
+      POSTGRES_DB: shopverse
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shopverse -d shopverse"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  email-mock:
+    build:
+      context: .
+      dockerfile: services/email_mock/Dockerfile
+    ports:
+      - "8006:8006"
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: services/auth_service/Dockerfile
+    environment:
+      JWT_SECRET: shopverse-validation
+      REDIS_URL: redis://redis:6379/0
+      SPLUNK_HEC_URL: ${SPLUNK_HEC_URL:-}
+      SPLUNK_HEC_TOKEN: ${SPLUNK_HEC_TOKEN:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  product-service:
+    build:
+      context: .
+      dockerfile: services/product_service/Dockerfile
+    environment:
+      SPLUNK_HEC_URL: ${SPLUNK_HEC_URL:-}
+      SPLUNK_HEC_TOKEN: ${SPLUNK_HEC_TOKEN:-}
+
+  checkout-service:
+    build:
+      context: .
+      dockerfile: services/checkout_service/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://shopverse:shopverse@postgres:5432/shopverse
+      REDIS_URL: redis://redis:6379/0
+      SPLUNK_HEC_URL: ${SPLUNK_HEC_URL:-}
+      SPLUNK_HEC_TOKEN: ${SPLUNK_HEC_TOKEN:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  order-service:
+    build:
+      context: .
+      dockerfile: services/order_service/Dockerfile
+    environment:
+      SPLUNK_HEC_URL: ${SPLUNK_HEC_URL:-}
+      SPLUNK_HEC_TOKEN: ${SPLUNK_HEC_TOKEN:-}
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: services/notification_service/Dockerfile
+    environment:
+      EMAIL_MOCK_URL: http://email-mock:8006
+      REDIS_URL: redis://redis:6379/0
+      SPLUNK_HEC_URL: ${SPLUNK_HEC_URL:-}
+      SPLUNK_HEC_TOKEN: ${SPLUNK_HEC_TOKEN:-}
+    depends_on:
+      - email-mock
+      - redis
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: services/api_gateway/Dockerfile
+    ports:
+      - "8080:8000"
+    environment:
+      AUTH_URL: http://auth-service:8001
+      PRODUCT_URL: http://product-service:8002
+      CHECKOUT_URL: http://checkout-service:8003
+      ORDER_URL: http://order-service:8004
+      NOTIFY_URL: http://notification-service:8005
+      REDIS_URL: redis://redis:6379/0
+      SPLUNK_HEC_URL: ${SPLUNK_HEC_URL:-https://host.docker.internal:8088/services/collector/event}
+      SPLUNK_HEC_TOKEN: ${SPLUNK_HEC_TOKEN:-}
+    depends_on:
+      - auth-service
+      - product-service
+      - checkout-service
+      - order-service
+      - notification-service
+      - redis
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway

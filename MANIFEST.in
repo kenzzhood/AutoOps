@@ -1,0 +1,18 @@
+include README.md
+include pyproject.toml
+include .env.example
+
+# Exclude everything that isn't the autoops package itself
+prune validation
+prune demo-app
+prune scripts
+prune examples
+prune .cursor
+exclude .env
+exclude .env.*
+exclude *.bak
+exclude *.backup
+global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude .DS_Store
+global-exclude *.tmp

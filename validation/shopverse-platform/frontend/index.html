@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ShopVerse — AutoOps Validation Portal</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
+      .card { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+      button { margin: 0.25rem; padding: 0.5rem 1rem; cursor: pointer; }
+      pre { background: #f4f4f4; padding: 1rem; overflow: auto; }
+    </style>
+  </head>
+  <body>
+    <h1>ShopVerse Customer Portal</h1>
+    <p>Official AutoOps validation frontend — React build served as static SPA.</p>
+    <div class="card">
+      <h2>Catalog</h2>
+      <button onclick="loadProducts()">Load Products</button>
+      <pre id="products"></pre>
+    </div>
+    <div class="card">
+      <h2>Checkout</h2>
+      <button onclick="checkout()">Checkout (user 1)</button>
+      <pre id="checkout"></pre>
+    </div>
+    <div class="card">
+      <h2>Incidents (Admin)</h2>
+      <button onclick="enableIncident('n_plus_one')">N+1</button>
+      <button onclick="enableIncident('db_latency')">DB Latency</button>
+      <button onclick="enableIncident('api_failure')">API Failure</button>
+      <button onclick="enableIncident('auth_attack')">Auth Attack</button>
+      <button onclick="disableIncident()">Disable</button>
+      <pre id="incidents"></pre>
+    </div>
+    <script>
+      const API = window.location.hostname === 'localhost' ? 'http://localhost:8080' : '';
+      async function loadProducts() {
+        const r = await fetch(`${API}/api/products`);
+        document.getElementById('products').textContent = JSON.stringify(await r.json(), null, 2);
+      }
+      async function checkout() {
+        await fetch(`${API}/api/checkout/cart/add?user_id=1&product_id=1`, { method: 'POST' });
+        const r = await fetch(`${API}/api/checkout`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({user_id: 1}) });
+        document.getElementById('checkout').textContent = JSON.stringify(await r.json(), null, 2);
+      }
+      async function enableIncident(type) {
+        const r = await fetch(`${API}/admin/incidents/enable?type=${type}`, { method: 'POST' });
+        document.getElementById('incidents').textContent = JSON.stringify(await r.json(), null, 2);
+      }
+      async function disableIncident() {
+        const r = await fetch(`${API}/admin/incidents/disable`, { method: 'POST' });
+        document.getElementById('incidents').textContent = JSON.stringify(await r.json(), null, 2);
+      }
+    </script>
+  </body>
+</html>

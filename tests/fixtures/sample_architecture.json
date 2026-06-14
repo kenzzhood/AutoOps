@@ -1,0 +1,44 @@
+{
+  "app_name": "demo-shop",
+  "services": [
+    {
+      "name": "main",
+      "type": "fastapi",
+      "file_path": "main.py",
+      "endpoints": [
+        {"path": "/auth/login", "method": "POST", "handler_function": "login", "is_critical": false},
+        {"path": "/auth/register", "method": "POST", "handler_function": "register", "is_critical": false},
+        {"path": "/products", "method": "GET", "handler_function": "list_products", "is_critical": false},
+        {"path": "/checkout", "method": "POST", "handler_function": "checkout", "is_critical": true},
+        {"path": "/orders/{user_id}", "method": "GET", "handler_function": "get_orders", "is_critical": false},
+        {"path": "/admin/toggle-bug", "method": "POST", "handler_function": "toggle_bug", "is_critical": false}
+      ],
+      "dependencies": []
+    }
+  ],
+  "databases": [
+    {
+      "name": "primary_db",
+      "type": "postgresql",
+      "tables_or_collections": ["users", "products", "orders", "cart_items"],
+      "connection_var": "DATABASE_URL"
+    }
+  ],
+  "external_apis": [],
+  "critical_paths": [
+    {
+      "name": "user_checkout",
+      "services": ["main"],
+      "endpoints": ["POST /checkout"],
+      "slo_latency_ms": 2000,
+      "error_budget_pct": 0.05
+    }
+  ],
+  "tech_stack": {
+    "languages": ["python"],
+    "frameworks": ["fastapi"],
+    "has_docker": true,
+    "has_kubernetes": false
+  },
+  "log_paths": []
+}

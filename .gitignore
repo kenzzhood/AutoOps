@@ -1,0 +1,41 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Local secrets — never commit
+.env
+*.env
+.env.*
+!.env.example
+
+# AutoOps local runtime state (may contain Splunk passwords / HEC tokens)
+.autoops/
+~/.autoops/
+
+# Build outputs
+dist/
+build/
+
+# Test cache
+.pytest_cache/
+.coverage
+htmlcov/
+validation/run_output.log
+
+# Backup files that may contain credentials
+validation/backups/
+*.bak
+*.backup
+
+# OS / IDE
+.DS_Store
+*.tmp
+.cursor/
+.idea/
+.vscode/
+
+# Docker / Splunk data volumes
+splunk-data/
