@@ -3,9 +3,8 @@
 [![PyPI version](https://img.shields.io/pypi/v/autoops-ai.svg)](https://pypi.org/project/autoops-ai/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![PyPI downloads](https://img.shields.io/pypi/dm/autoops-ai.svg)](https://pypi.org/project/autoops-ai/)
 
-**One command to autonomously configure Splunk observability and investigate incidents for any codebase.**
+**Configure observability and investigate incidents for any codebase with Splunk and AI.**
 
 AutoOps AI is an autonomous observability engineer powered by Splunk and AI. Install it, point it at any repository, and it scans your architecture, generates instrumentation, bootstraps Splunk and OpenTelemetry in Docker, creates dashboards and alerts, and runs AI-driven incident investigations with root cause analysis and remediation recommendations.
 
@@ -87,7 +86,7 @@ autoops configure --repo .
 autoops investigate --alert autoops_your-app_checkout_error_rate --window 30m
 ```
 
-That's three commands from zero to full observability.
+That's three commands from install to full observability.
 
 ---
 
@@ -203,7 +202,7 @@ autoops configure --repo validation/shopverse-platform
 python3 validation/run_validation.py
 ```
 
-See [validation/README.md](validation/README.md) and [validation/validation_report.md](validation/validation_report.md) (19/19 checks passed).
+See [validation/README.md](validation/README.md) and [validation/validation_report.md](validation/validation_report.md) for the validation checklist and latest run output.
 
 ---
 
